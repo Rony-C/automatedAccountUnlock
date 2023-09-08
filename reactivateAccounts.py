@@ -9,13 +9,13 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-destURL = "https://admin.gigable.app/admin/"
+destURL = "destination_url.com"
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
 # The ID and range of a sample spreadsheet.
-SPREADSHEET_ID = '126CvfGaIcCZLgzEcFNx7bENRt_brsCddZ-LcozZaxiU'
+SPREADSHEET_ID = 'spreadsheet_id'
 RANGE_NAME = 'Sheet1!A2:B'
 
 # Store IDs that need to be reactivated
@@ -43,7 +43,7 @@ def connectGoogleSheet():
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
                 # Created from Google Dev portal
-                '/Users/rony/vs_code/python/work_files/reactivateFLAccount/credentials.json', SCOPES)
+                'directory_path/credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
         with open('token.json', 'w') as token:
@@ -76,8 +76,8 @@ def connectGoogleSheet():
         print(err)
     print("Connected")
 
-def loginToGigableAdmin():
-    with open("/Users/rony/vs_code/python/work_files/reactivateFLAccount/credentials.yml") as f:
+def loginToAccountsAdmin():
+    with open("directory_path/credentials.yml") as f:
         login = f.read()
     
     my_cred = yaml.load(login, Loader=yaml.FullLoader)
@@ -93,6 +93,7 @@ def loginToGigableAdmin():
     password = driver.find_element(by=By.CSS_SELECTOR, value="#password")
 
     # Enter username and password
+    # Stored in .yml file
     userName.send_keys(loginEmail)
     password.send_keys(loginPassword)
 
@@ -109,7 +110,7 @@ def toggleActive():
     driver.switch_to.alert.accept()
 
 def isBlocked(id):
-    driver.get(f"https://admin.gigable.app/admin/users/{id}")
+    driver.get(f"destination_url.com/users/{id}")
 
     isBlocked = driver.find_element(by=By.CSS_SELECTOR, value="body > div > div > section.content.container-fluid > section > div.callout.callout-danger")
     # If they're blocked, toggle them active
@@ -119,7 +120,7 @@ def isBlocked(id):
         print(f"User account {id} reactivated")
 
 def checkIfActive(id):
-    driver.get(f"https://admin.gigable.app/admin/users/{id}")
+    driver.get(f"destination_url.com/users/{id}")
     try:
         # Checks if user is currently blocked
         isBlocked(id)
@@ -135,10 +136,10 @@ def end():
     # Close browser window and quit program
     driver.close()
     driver.quit()
-    print(f"Please delete the rows for {userIds} from the sheet: https://docs.google.com/spreadsheets/d/126CvfGaIcCZLgzEcFNx7bENRt_brsCddZ-LcozZaxiU/edit#gid=0")
+    print(f"Please delete the rows for {userIds} from the sheet: https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/edit#gid=0")
 
 connectGoogleSheet()
 #Remove IDs and dates from list
-loginToGigableAdmin()
+loginToAccountsAdmin()
 checkIDs()
 end()
